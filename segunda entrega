@@ -37,3 +37,64 @@ resp = client.models.generate_content(
     contents="Decí 'OK' si estás funcionando."
 )
 print("Test del modelo:", getattr(resp, "text", str(resp)))
+
+resp = client.models.generate_content(model=MODEL_TEXT, contents="Decí 'OK' si estás funcionando.")
+print("Test del modelo:", getattr(resp, "text", str(resp)))
+
+Buyer Persona (variable de entrada: perfil objetivo)
+
+# Si abriste un runtime nuevo, descomenta estas dos líneas para instalar/usar el cliente:
+# !pip install -q google-genai==1.63.0
+# from google import genai
+
+# Comprobar que el cliente y el modelo existen en la sesión:
+try:
+    client
+    MODEL_TEXT
+except NameError as e:
+    raise RuntimeError(
+        "No se encontró 'client' o 'MODEL_TEXT' en esta sesión. "
+        "Primero corré 01_init_gemini.ipynb (instalar, leer Secret y crear cliente)."
+    ) from e
+
+# Contexto que usarán los casos de prueba
+PROJECT_CONTEXT = """
+Marca: X Bikinis (Argentina). Problema: estacionalidad (8–9 meses de baja).
+Estrategia: nueva unidad 'ACTIVEWEAR & BEACHWEAR TODO EL AÑO' validada con IA.
+Audiencia: mujeres jóvenes digitales. Objetivo: estabilizar ingresos y optimizar costos.
+"""
+
+# Helper sencillo para consultas
+def _ask(prompt: str, model: str = None) -> str:
+    if model is None:
+        model = MODEL_TEXT
+    resp = client.models.generate_content(model=model, contents=prompt)
+    return getattr(resp, "text", str
+
+Ideación de Línea de Producto (variables: temporada fría, materiales, rango de precio)
+
+temporada_fria = "Otoño-Invierno"
+materiales = ["lycra compresiva", "algodón peinado", "spandex reciclado"]
+precio_min, precio_max = 35000, 65000  # ARS (ajustá a tu criterio)
+
+print(f"--- PRUEBA 2: Línea de producto {temporada_fria} ---")
+
+prompt = f"""
+{PROJECT_CONTEXT}
+
+Actuá como consultor de marcas. Proponé UNA línea de producto coherente con la marca,
+pensada para vender en {temporada_fria}. Usá estos materiales de referencia: {', '.join(materiales)}.
+Rango de precio sugerido: ARS {precio_min}–{precio_max}.
+
+Devolvé en Markdown:
+- Nombre de la línea
+- Estilo (2–3 frases)
+- Paleta (4 colores con nombres)
+- Materiales principales y por qué
+- Variedades (tops/leggings/bodys/accesorios)
+- Justificación del pricing en ARS
+- Riesgos y oportunidades (3/3)
+"""
+
+resultado = _ask(prompt)
+print(resultado)

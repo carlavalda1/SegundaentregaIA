@@ -1,0 +1,39 @@
+!pip install -q google-genai==1.63.0
+
+from google import genai
+from google.colab import userdata
+import os, re
+
+# 1) Leer secreto o variable de entorno
+API_KEY = userdata.get('GOOGLE_API_KEY') or os.environ.get('GOOGLE_API_KEY')
+
+if not API_KEY:
+    raise RuntimeError(
+        "Falta GOOGLE_API_KEY. Cargalo en Secrets (Settings > Secrets) o en variable de entorno."
+    )
+
+# 2) Sanitizar: quitar espacios, saltos de línea y quedarnos con la primera línea válida
+API_KEY = API_KEY.strip()
+# Si accidentalmente pegaste varias líneas, nos quedamos con la primera no vacía
+for line in API_KEY.splitlines():
+    line = line.strip()
+    if line:
+        API_KEY = line
+        break
+
+# Validación simple de formato (opcional, pero ayuda)
+if ("\n" in API_KEY) or ("\r" in API_KEY):
+    raise ValueError("La API key contiene saltos de línea. Editá el Secret y dejala en una sola línea.")
+
+if not API_KEY.startswith("AIza"):
+    print("⚠️ Aviso: La API key no empieza con 'AIza'. Verificá que sea una clave de Gemini API.")
+
+# 3) Crear cliente y probar
+client = genai.Client(api_key=API_KEY)
+MODEL_TEXT = "gemini-3-flash-preview"  # podés cambiar a "gemini-1.5-flash" si tu cuenta no tiene acceso preview
+
+resp = client.models.generate_content(
+    model=MODEL_TEXT,
+    contents="Decí 'OK' si estás funcionando."
+)
+print("Test del modelo:", getattr(resp, "text", str(resp)))
